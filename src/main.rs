@@ -1,15 +1,19 @@
-use std::env;
 use std::fs;
+use std::path::Path;
 
 fn main() {
-    let args: Vec<String>=env::args().collect();
-    // dbg!(args);  
-    let query = &args[1];
-    let file_path = &args[2];
-    println!("Searching for {query}");
-    println!("In file {file_path}");
-    
-    let contents=fs::read_to_string(file_path).expect("Should have been able to read the file");
-    println!("With text: \n{contents}");
+    // 1. Set path for macOS Applications
+    // In macOS, there are two different path for applications: system level: `/Applications`  vs User level: `~Applications`
+    let application_dir=Path::new("/Applications");
+    println!("Target directory: {}", application_dir.display());
 
+    // 2. List the each application name under /Applications
+    let entries = fs::read_dir(application_dir).expect("Failed to read /Applications");
+    for entry in entries {
+        let entry = entry.expect("Failed to read entry");
+        let path = entry.path();
+        if path.is_dir() && path.extension().map_or(false, |e|e == "app") {
+            println!("  {}", path.display());
+        }
+    }
 }
